@@ -10,63 +10,75 @@ import os, sys
 import datetime
 
 def idle():
-    # I don't know why print does not work here
+    # print has something wrong with unicode. Need fixed
     os.system('echo ⏲️')
     print("---")
-    print(" 1 min | color=red bash=" + os.path.realpath(__file__) +  " param1=1 terminal=false")
+    print(" 1 min | color=blue bash=" + os.path.realpath(__file__) +  " param1=1 terminal=false")
     print(" 5 min | color=green bash=" + os.path.realpath(__file__) +  " param1=5 terminal=false")
-    print("10 min | color=red bash=" + os.path.realpath(__file__) +  " param1=10 terminal=false")
+    print("10 min | color=blue bash=" + os.path.realpath(__file__) +  " param1=10 terminal=false")
     print("30 min | color=green bash=" + os.path.realpath(__file__) +  " param1=30 terminal=false")
-    print("60 min | color=red bash=" + os.path.realpath(__file__) +  " param1=60 terminal=false")
-    print("Custom | color=blue bash=" + os.path.realpath(__file__) +  " param1=set terminal=false")
+    print("60 min | color=blue bash=" + os.path.realpath(__file__) +  " param1=60 terminal=false")
+    print("Custom | color=red bash=" + os.path.realpath(__file__) +  " param1=set terminal=false")
 
 def touch(a_file):
     with open(a_file, 'a'):
         os.utime(a_file, None)
 
 def setATime(a_time):
-    touch('/tmp/CountdownTimer.lock')
-    with open('/tmp/CountdownTimer.set', 'w') as f:
+    touch(lockFile)
+    with open(setFile, 'w') as f:
         f.write(a_time)
 
-def trigger():
+def cancel():
     idle()
+    if os.path.isfile(setFile):
+        os.remove(setFile)
+
+def alert():
     cancel()
     for _ in range(10):
         os.system('afplay /System/Library/Sounds/Tink.aiff')
 
-def cancel():
-    idle()
-    if os.path.isfile('/tmp/CountdownTimer.set'):
-        os.remove('/tmp/CountdownTimer.set')
+lockFile = '/tmp/CountdownTimer.lock'
+setFile = '/tmp/CountdownTimer.set'
 
 if len(sys.argv) == 1:
-    if not os.path.isfile('/tmp/CountdownTimer.set'):
+    if not os.path.isfile(setFile):
         idle()
     else:
-        with open('/tmp/CountdownTimer.set', 'r') as f:
-            setTime = int(f.read())*60
-        timestamp = datetime.datetime.fromtimestamp(os.path.getmtime('/tmp/CountdownTimer.lock'))
+        with open(setFile, 'r') as f:
+            setTime = int(f.read()) 
+        timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(lockFile))
         td = setTime - (datetime.datetime.now() - timestamp).total_seconds()
-        if td < 0: 
-            trigger()
-        minute, second = divmod(td, 60)
-        print(str(int(minute)) + ':' + '{0:02d}'.format(int(second)))
-        print("---")
-        print("Cancel | color=green bash=" + os.path.realpath(__file__) +  " param1=cancel terminal=false")
+        if td <= 0: 
+            alert()
+        else:
+            minute, second = divmod(td, 60)
+            if minute < 60:
+                print(str(int(minute)) + ':' + '{0:02d}'.format(int(second)))
+            else:
+                hour, minute = divmod(minute, 60)
+                print(str(int(hour)) + ':' + '{0:02d}'.format(int(minute)) + ':' + '{0:02d}'.format(int(second)))
+            print("---")
+            print("Cancel | color=red bash=" + os.path.realpath(__file__) +  " param1=cancel terminal=false")
 else:
     if sys.argv[1].isdigit():
-        setATime(sys.argv[1])
+        setATime(str(int(sys.argv[1]) * 60))
     else:
-        if sys.argv[1] == 'set':
-            line = '''osascript -e 'Tell application "System Events" to display dialog "How many minutes to count down? " default answer ""' -e 'text returned of result' 2>/dev/null '''
-            a_time = os.popen(line).read().strip()
-            print(a_time)
-            print(a_time.isdigit())
-            print(int(a_time))
-            if a_time.isdigit() and int(a_time) > 0:
-                setATime(a_time)
-            else:
-                idle()
-        elif sys.argv[1] == 'cancel':
+        if sys.argv[1] == 'cancel':
             cancel()
+        elif sys.argv[1] == 'set':
+            line = '''osascript -e 'Tell application "System Events" to display dialog "How many minutes to count down? or [hh:]mm:ss " default answer ""' -e 'text returned of result' 2>/dev/null '''
+            a_time = os.popen(line).read().strip()
+            if ':' not in a_time:
+                if a_time.isdigit() and int(a_time) > 0:
+                    setATime(a_time)
+            else:
+                try: 
+                    hms = [int(i) for i in a_time.split(':')]
+                    if len(hms) == 2 and 0 <= hms[0] < 60 and 0 <= hms[1] < 60:
+                        setATime(str(hms[0] * 60 + hms[1]))
+                    if len(hms) == 3 and 0 <= hms[1] < 60 and 0 <= hms[2] < 60:
+                        setATime(str(hms[0] * 60 * 60 + hms[1] * 60  + hms[2]))
+                except:
+                    pass
