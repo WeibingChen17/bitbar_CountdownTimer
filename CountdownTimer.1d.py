@@ -13,12 +13,12 @@ def idle():
     # print has something wrong with unicode. Need fixed
     os.system('echo ⏲️')
     print("---")
-    print(" 1 min | color=blue bash=" + os.path.realpath(__file__) +  " param1=1 terminal=false")
-    print(" 5 min | color=green bash=" + os.path.realpath(__file__) +  " param1=5 terminal=false")
-    print("10 min | color=blue bash=" + os.path.realpath(__file__) +  " param1=10 terminal=false")
-    print("30 min | color=green bash=" + os.path.realpath(__file__) +  " param1=30 terminal=false")
-    print("60 min | color=blue bash=" + os.path.realpath(__file__) +  " param1=60 terminal=false")
-    print("Custom | color=red bash=" + os.path.realpath(__file__) +  " param1=set terminal=false")
+    print(" 1 min | color=blue bash=" + fullPathFileName +  " param1=1 terminal=false")
+    print(" 5 min | color=green bash=" + fullPathFileName +  " param1=5 terminal=false")
+    print("10 min | color=blue bash=" + fullPathFileName +  " param1=10 terminal=false")
+    print("30 min | color=green bash=" + fullPathFileName +  " param1=30 terminal=false")
+    print("60 min | color=blue bash=" + fullPathFileName +  " param1=60 terminal=false")
+    print("Custom | color=red bash=" + fullPathFileName +  " param1=set terminal=false")
 
 def touch(a_file):
     with open(a_file, 'a'):
@@ -28,26 +28,38 @@ def setATime(a_time):
     touch(lockFile)
     with open(setFile, 'w') as f:
         f.write(a_time)
+    setRefreshRate('1s')
 
 def cancel():
     idle()
     if os.path.isfile(setFile):
         os.remove(setFile)
+    setRefreshRate('1d')
 
 def alert():
     cancel()
     for _ in range(10):
         os.system('afplay /System/Library/Sounds/Tink.aiff')
+    setRefreshRate('1d')
+
+def setRefreshRate(refreshRate):
+    fileNameL = fullPathFileName.split('/')[-1].split('.')
+    fileNameL[1] = refreshRate
+    newFileName =  '.'.join(fileNameL)
+    path = '/'.join(fullPathFileName.split('/')[:-1])
+    os.rename(fullPathFileName, path + '/' + newFileName)
 
 lockFile = '/tmp/CountdownTimer.lock'
+logFile = '/tmp/CountdownTimer.log'
 setFile = '/tmp/CountdownTimer.set'
+fullPathFileName = os.path.realpath(__file__)
 
 if len(sys.argv) == 1:
     if not os.path.isfile(setFile):
         idle()
     else:
         with open(setFile, 'r') as f:
-            setTime = int(f.read()) 
+            setTime = int(f.read())
         timestamp = datetime.datetime.fromtimestamp(os.path.getmtime(lockFile))
         td = setTime - (datetime.datetime.now() - timestamp).total_seconds()
         if td <= 0: 
@@ -72,7 +84,7 @@ else:
             a_time = os.popen(line).read().strip()
             if ':' not in a_time:
                 if a_time.isdigit() and int(a_time) > 0:
-                    setATime(a_time)
+                    setATime(str(int(a_time) * 60))
             else:
                 try: 
                     hms = [int(i) for i in a_time.split(':')]
