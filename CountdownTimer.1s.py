@@ -5,7 +5,7 @@
 # <bitbar.author.github>weibingchen17</bitbar.author.github>
 # <bitbar.desc>A countdown timer with present and custom time.</bitbar.desc>
 # <bitbar.image>http://www.hosted-somewhere/pluginimage</bitbar.image>
-# <bitbar.dependencies>python3</bitbar.dependencies>
+# <bitbar.dependencies>python3, osascript</bitbar.dependencies>
 import os, sys
 import datetime
 
