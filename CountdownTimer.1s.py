@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/env LC_ALL=en_US.UTF-8 /usr/local/bin/python3
 # <bitbar.title>Countdown Timer</bitbar.title>
 # <bitbar.version>v0.1</bitbar.version>
 # <bitbar.author>Weibing Chen</bitbar.author>
@@ -10,8 +10,7 @@ import os, sys
 import datetime
 
 def idle():
-    # print has something wrong with unicode. Need fixed
-    os.system('echo ⏲️')
+    print('⏲️')
     print("---")
     print(" 1 min | color=blue bash=" + fullPathFileName +  " param1=1 terminal=false refresh=true")
     print(" 5 min | color=green bash=" + fullPathFileName +  " param1=5 terminal=false refresh=true")
