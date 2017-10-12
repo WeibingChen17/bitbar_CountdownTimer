@@ -4,7 +4,7 @@
 # <bitbar.author>Weibing Chen</bitbar.author>
 # <bitbar.author.github>weibingchen17</bitbar.author.github>
 # <bitbar.desc>A countdown timer with present and custom time.</bitbar.desc>
-# <bitbar.image>http://www.hosted-somewhere/pluginimage</bitbar.image>
+# <bitbar.image>https://github.com/WeibingChen17/bitbar_CountdownTimer/blob/master/counterdownTimer.png</bitbar.image>
 # <bitbar.dependencies>python3, osascript</bitbar.dependencies>
 import os, sys
 import datetime
