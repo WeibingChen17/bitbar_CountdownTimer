@@ -13,12 +13,12 @@ def idle():
     # print has something wrong with unicode. Need fixed
     os.system('echo ⏲️')
     print("---")
-    print(" 1 min | color=blue bash=" + fullPathFileName +  " param1=1 terminal=false")
-    print(" 5 min | color=green bash=" + fullPathFileName +  " param1=5 terminal=false")
-    print("10 min | color=blue bash=" + fullPathFileName +  " param1=10 terminal=false")
-    print("30 min | color=green bash=" + fullPathFileName +  " param1=30 terminal=false")
-    print("60 min | color=blue bash=" + fullPathFileName +  " param1=60 terminal=false")
-    print("Custom | color=red bash=" + fullPathFileName +  " param1=set terminal=false")
+    print(" 1 min | color=blue bash=" + fullPathFileName +  " param1=1 terminal=false refresh=true")
+    print(" 5 min | color=green bash=" + fullPathFileName +  " param1=5 terminal=false refresh=true")
+    print("10 min | color=blue bash=" + fullPathFileName +  " param1=10 terminal=false refresh=true")
+    print("30 min | color=green bash=" + fullPathFileName +  " param1=30 terminal=false refresh=true")
+    print("60 min | color=blue bash=" + fullPathFileName +  " param1=60 terminal=false refresh=true")
+    print("Custom | color=red bash=" + fullPathFileName +  " param1=set terminal=false refresh=true")
 
 def touch(a_file):
     with open(a_file, 'a'):
@@ -28,19 +28,18 @@ def setATime(a_time):
     touch(lockFile)
     with open(setFile, 'w') as f:
         f.write(a_time)
-    setRefreshRate('1s')
+#    setRefreshRate('1s')
 
 def cancel():
     idle()
     if os.path.isfile(setFile):
         os.remove(setFile)
-    setRefreshRate('1d')
+#    setRefreshRate('1d')
 
 def alert():
     cancel()
     for _ in range(10):
         os.system('afplay /System/Library/Sounds/Tink.aiff')
-    setRefreshRate('1d')
 
 def setRefreshRate(refreshRate):
     fileNameL = fullPathFileName.split('/')[-1].split('.')
@@ -72,7 +71,7 @@ if len(sys.argv) == 1:
                 hour, minute = divmod(minute, 60)
                 print(str(int(hour)) + ':' + '{0:02d}'.format(int(minute)) + ':' + '{0:02d}'.format(int(second)))
             print("---")
-            print("Cancel | color=red bash=" + os.path.realpath(__file__) +  " param1=cancel terminal=false")
+            print("Cancel | color=red bash=" + os.path.realpath(__file__) +  " param1=cancel terminal=false refresh=true")
 else:
     if sys.argv[1].isdigit():
         setATime(str(int(sys.argv[1]) * 60))
